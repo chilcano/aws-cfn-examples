@@ -46,7 +46,7 @@ $ export AWS_DEFAULT_REGION="us-east-1"
 // Creating the ECS stack
 $ aws cloudformation create-stack \
     --template-body file://EC2LaunchType/clusters/public-vpc.yml \
-    --stack-name ecs_scenario1b \
+    --stack-name ecs-scenario1b \
     --parameters ParameterKey=DesiredCapacity,ParameterValue=2 ParameterKey=MaxSize,ParameterValue=3 ParameterKey=InstanceType,ParameterValue=t2.small 
 
 An error occurred (InsufficientCapabilitiesException) when calling the CreateStack operation: Requires capabilities : [CAPABILITY_IAM]
@@ -54,7 +54,7 @@ An error occurred (InsufficientCapabilitiesException) when calling the CreateSta
 // Running again passing the 'capabilities' parameter 
 $ aws cloudformation create-stack \
     --template-body file://EC2LaunchType/clusters/public-vpc.yml \
-    --stack-name ecs_scenario1b \
+    --stack-name ecs-scenario1b \
     --parameters ParameterKey=DesiredCapacity,ParameterValue=2 ParameterKey=MaxSize,ParameterValue=3 ParameterKey=InstanceType,ParameterValue=t2.small \
     --capabilities CAPABILITY_IAM 
 
@@ -63,7 +63,8 @@ $ aws cloudformation create-stack \
 }
 
 // Querying the output variables
-$ aws cloudformation describe-stacks --stack-name ecs_scenario1b | jq -c '.Stacks[].Outputs[] | {k: .OutputKey, v:.OutputValue}'
+$ aws cloudformation describe-stacks --stack-name ecs-scenario1b | jq -c '.Stacks[].Outputs[] | {k: .OutputKey, v:.OutputValue}'
+
 {"k":"ECSRole","v":"arn:aws:iam::263455585760:role/ECSClusterScenario1b-ECSRole-1H0MSWYWA1J02"}
 {"k":"PublicSubnetOne","v":"subnet-026e4a50f8ed554c2"}
 {"k":"VPCId","v":"vpc-01c71974a17719964"}
@@ -73,19 +74,18 @@ $ aws cloudformation describe-stacks --stack-name ecs_scenario1b | jq -c '.Stack
 {"k":"ClusterName","v":"ECSClusterScenario1b-ECSCluster-PElG3UDWUS2s"}
 {"k":"ExternalUrl","v":"http://ECSCl-Publi-1QPWQ5J60DPWV-701553384.us-east-1.elb.amazonaws.com"}
 
-
 // Deploying the ECS services to existing stack
 $ aws cloudformation update-stack \
     --template-body file://EC2LaunchType/services/public-service.yml \
-    --stack-name ECSClusterScenario1b \
+    --stack-name ecs-scenario1b \
     --parameters ParameterKey=StackName,ParameterValue=ECSClusterScenario1b 
 
 // Removing ECS cluster
-$ aws cloudformation delete-stack --stack-name ECSClusterScenario1b
+$ aws cloudformation delete-stack --stack-name ecs-scenario1b
 ```
 
 **Note:**    
-- [Param `--capabilities`](https://medium.com/@dalumiller/aws-cloudformation-capabilities-parameter-ab73a373278)).
+- [Parameter `--capabilities` explanation](https://medium.com/@dalumiller/aws-cloudformation-capabilities-parameter-ab73a373278).
 
 ## Scenario 2: Publicly Exposed Service with Private Networking
 
