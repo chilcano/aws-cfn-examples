@@ -1,3 +1,4 @@
+---
 AWSTemplateFormatVersion: '2010-09-09'
 Description: A stack for deploying containerized applications onto a cluster of EC2
              hosts using Elastic Container Service. This stack runs containers on

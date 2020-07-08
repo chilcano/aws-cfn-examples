@@ -1,3 +1,4 @@
+---
 AWSTemplateFormatVersion: '2010-09-09'
 Description: A stack for deploying containerized applications onto a cluster of EC2
              hosts using Elastic Container Service. This stack runs containers on
@@ -58,19 +59,18 @@ Mappings:
 ##                        Resources                           ##
 ##==============================================================
 Resources:
+  VPC:
   # VPC in which containers will be networked.
   # It has two public subnets
   # We distribute the subnets across the first two available subnets
   # for the region, for high availability.
-  VPC:
     Type: AWS::EC2::VPC
     Properties:
       EnableDnsSupport: true
       EnableDnsHostnames: true
       CidrBlock: !FindInMap ['SubnetConfig', 'VPC', 'CIDR']
-
-  # Two public subnets, where containers can have public IP addresses
   PublicSubnetOne:
+  # Two public subnets, where containers can have public IP addresses
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone:
@@ -90,11 +90,10 @@ Resources:
       VpcId: !Ref 'VPC'
       CidrBlock: !FindInMap ['SubnetConfig', 'PublicTwo', 'CIDR']
       MapPublicIpOnLaunch: true
-
+  InternetGateway:
   # Setup networking resources for the public subnets. Containers
   # in the public subnets have public IP addresses and the routing table
   # sends network traffic via the internet gateway.
-  InternetGateway:
     Type: AWS::EC2::InternetGateway
   GatewayAttachement:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -122,11 +121,10 @@ Resources:
     Properties:
       SubnetId: !Ref PublicSubnetTwo
       RouteTableId: !Ref PublicRouteTable
-
-  # ECS Resources
   ECSCluster:
+  # ECS Resources
     Type: AWS::ECS::Cluster
-
+  EcsHostSecurityGroup:
   # A security group for the EC2 hosts that will run the containers.
   # Two rules, allowing network traffic from a public facing load
   # balancer and from other hosts in the security group.
@@ -135,7 +133,6 @@ Resources:
   # If you want to make direct requests to a container using its
   # public IP address you'll need to add a security group rule
   # to allow traffic from all IP addresses.
-  EcsHostSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Access to the ECS hosts that run containers
@@ -154,10 +151,9 @@ Resources:
       GroupId: !Ref 'EcsHostSecurityGroup'
       IpProtocol: -1
       SourceSecurityGroupId: !Ref 'EcsHostSecurityGroup'
-
+  ECSAutoScalingGroup:
   # Autoscaling group. This launches the actual EC2 instances that will register
   # themselves as members of the cluster, and run the docker containers.
-  ECSAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       VPCZoneIdentifier:
