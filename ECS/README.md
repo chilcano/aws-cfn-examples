@@ -45,7 +45,7 @@ $ export AWS_DEFAULT_REGION="us-east-1"
 
 // Creating the ECS stack passing the 'capabilities' parameter 
 $ aws cloudformation create-stack \
-    --template-body file://EC2LaunchType/clusters/public-vpc.yml \
+    --template-body file://ECS/EC2LaunchType/clusters/public-vpc.yml \
     --stack-name ecs-scenario1b \
     --parameters ParameterKey=DesiredCapacity,ParameterValue=2 ParameterKey=MaxSize,ParameterValue=3 ParameterKey=InstanceType,ParameterValue=t2.small \
     --capabilities CAPABILITY_IAM 
@@ -78,7 +78,7 @@ Connection: keep-alive
 
 // Deploying the ECS services to previous stack 'ecs-scenario1b'
 $ aws cloudformation create-stack \
-    --template-body file://EC2LaunchType/services/public-service.yml \
+    --template-body file://ECS/EC2LaunchType/services/public-service.yml \
     --stack-name ecs-scenario1b-srv \
     --parameters ParameterKey=StackName,ParameterValue=ecs-scenario1b 
 
@@ -106,7 +106,7 @@ $ aws cloudformation delete-stack --stack-name ecs-scenario1b-srv
    ```sh
    // Deploying the ECS services to previous stack 'ecs-scenario1b' using 'change-set'
    $ aws cloudformation create-change-set \
-       --template-body file://EC2LaunchType/services/public-service.yml \
+       --template-body file://ECS/EC2LaunchType/services/public-service.yml \
        --stack-name ecs-scenario1b \
        --parameters ParameterKey=StackName,ParameterValue=ecs-scenario1b \
        --change-set-name changeset-task-srv
@@ -167,9 +167,43 @@ This architecture deploys your container into a private subnet. The containers d
 1. Launch the [public + private](EC2LaunchType/clusters/private-vpc.yml) cluster template
 2. Launch the [public facing, private subnet service template](EC2LaunchType/services/public-service.yml).
 
-&nbsp;
+```sh
+$ export AWS_ACCESS_KEY_ID="xxxxxx"; export AWS_SECRET_ACCESS_KEY="yyyyyyy"
+$ export AWS_DEFAULT_REGION="us-east-1"
 
-&nbsp;
+// Creating the ECS stack passing the 'capabilities' parameter 
+$ aws cloudformation create-stack \
+    --template-body file://ECS/EC2LaunchType/clusters/private-vpc.yml \
+    --stack-name ecs-scenario2b \
+    --parameters ParameterKey=DesiredCapacity,ParameterValue=2 ParameterKey=MaxSize,ParameterValue=3 ParameterKey=InstanceType,ParameterValue=t2.small \
+    --capabilities CAPABILITY_IAM 
+
+// Querying the output variables
+$ aws cloudformation describe-stacks --stack-name ecs-scenario2b | jq -c '.Stacks[].Outputs[] | {k: .OutputKey, v:.OutputValue}'
+
+// Trying to call the service (any) through the AWS ELB
+$ curl -I http://ecs-s-Publi-xxxxxx.us-east-1.elb.amazonaws.com
+
+HTTP/1.1 503 Service Temporarily Unavailable
+Server: awselb/2.0
+...
+
+// Deploying the ECS services to previous stack 'ecs-scenario2b'
+$ aws cloudformation create-stack \
+    --template-body file://ECS/EC2LaunchType/services/public-service.yml \
+    --stack-name ecs-scenario2b-srv \
+    --parameters ParameterKey=StackName,ParameterValue=ecs-scenario2b 
+
+// Trying to call the service again through the AWS ELB
+$ curl -I http://ecs-s-Publi-xxxxxx.us-east-1.elb.amazonaws.com
+
+HTTP/1.1 200 OK
+...
+
+// Removing ECS cluster and services
+$ aws cloudformation delete-stack --stack-name ecs-scenario2b
+$ aws cloudformation delete-stack --stack-name ecs-scenario2b-srv
+```
 
 ## Scenario 3: Internal Service with Private Networking
 

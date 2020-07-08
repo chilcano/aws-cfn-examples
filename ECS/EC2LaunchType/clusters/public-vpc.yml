@@ -6,7 +6,7 @@ Description: A stack for deploying containerized applications onto a cluster of 
              balancer to register the services in.
 
 ##==============================================================
-##                        Parameter                           ##
+##                        Parameters                          ##
 ##==============================================================
 Parameters:
   DesiredCapacity:
@@ -69,8 +69,9 @@ Resources:
       EnableDnsSupport: true
       EnableDnsHostnames: true
       CidrBlock: !FindInMap ['SubnetConfig', 'VPC', 'CIDR']
-  PublicSubnetOne:
+  
   # Two public subnets, where containers can have public IP addresses
+  PublicSubnetOne:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone:
@@ -90,10 +91,11 @@ Resources:
       VpcId: !Ref 'VPC'
       CidrBlock: !FindInMap ['SubnetConfig', 'PublicTwo', 'CIDR']
       MapPublicIpOnLaunch: true
-  InternetGateway:
+
   # Setup networking resources for the public subnets. Containers
   # in the public subnets have public IP addresses and the routing table
   # sends network traffic via the internet gateway.
+  InternetGateway:
     Type: AWS::EC2::InternetGateway
   GatewayAttachement:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -121,10 +123,11 @@ Resources:
     Properties:
       SubnetId: !Ref PublicSubnetTwo
       RouteTableId: !Ref PublicRouteTable
-  ECSCluster:
+
   # ECS Resources
+  ECSCluster:
     Type: AWS::ECS::Cluster
-  EcsHostSecurityGroup:
+
   # A security group for the EC2 hosts that will run the containers.
   # Two rules, allowing network traffic from a public facing load
   # balancer and from other hosts in the security group.
@@ -133,6 +136,7 @@ Resources:
   # If you want to make direct requests to a container using its
   # public IP address you'll need to add a security group rule
   # to allow traffic from all IP addresses.
+  EcsHostSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Access to the ECS hosts that run containers
@@ -151,9 +155,10 @@ Resources:
       GroupId: !Ref 'EcsHostSecurityGroup'
       IpProtocol: -1
       SourceSecurityGroupId: !Ref 'EcsHostSecurityGroup'
-  ECSAutoScalingGroup:
+
   # Autoscaling group. This launches the actual EC2 instances that will register
   # themselves as members of the cluster, and run the docker containers.
+  ECSAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       VPCZoneIdentifier:
