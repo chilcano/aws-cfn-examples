@@ -43,30 +43,27 @@ This architecture deploys your container into its own VPC, inside a public facin
 $ export AWS_ACCESS_KEY_ID="xxxxxx"; export AWS_SECRET_ACCESS_KEY="yyyyyyy"
 $ export AWS_DEFAULT_REGION="us-east-1"
 
+// Creating the ECS stack
 $ aws cloudformation create-stack \
     --template-body file://EC2LaunchType/clusters/public-vpc.yml \
-    --stack-name ECSClusterScenario1b \
+    --stack-name ecs_scenario1b \
     --parameters ParameterKey=DesiredCapacity,ParameterValue=2 ParameterKey=MaxSize,ParameterValue=3 ParameterKey=InstanceType,ParameterValue=t2.small 
 
 An error occurred (InsufficientCapabilitiesException) when calling the CreateStack operation: Requires capabilities : [CAPABILITY_IAM]
-```
 
-Trying again passing the `capabilities` parameter (see explanation [here](https://medium.com/@dalumiller/aws-cloudformation-capabilities-parameter-ab73a373278)).
-```sh
+// Running again passing the 'capabilities' parameter 
 $ aws cloudformation create-stack \
     --template-body file://EC2LaunchType/clusters/public-vpc.yml \
-    --stack-name ECSClusterScenario1b \
+    --stack-name ecs_scenario1b \
     --parameters ParameterKey=DesiredCapacity,ParameterValue=2 ParameterKey=MaxSize,ParameterValue=3 ParameterKey=InstanceType,ParameterValue=t2.small \
     --capabilities CAPABILITY_IAM 
 
 {
     "StackId": "arn:aws:cloudformation:us-east-1:263455585760:stack/ECSClusterScenario1b/211c14a0-c070-11ea-9a34-120fbf0f0187"
 }
-```
 
-Wait for a few minutes to check and get the output values:
-```sh
-$ aws cloudformation describe-stacks --stack-name ECSClusterScenario1b | jq -c '.Stacks[].Outputs[] | {k: .OutputKey, v:.OutputValue}'
+// Querying the output variables
+$ aws cloudformation describe-stacks --stack-name ecs_scenario1b | jq -c '.Stacks[].Outputs[] | {k: .OutputKey, v:.OutputValue}'
 {"k":"ECSRole","v":"arn:aws:iam::263455585760:role/ECSClusterScenario1b-ECSRole-1H0MSWYWA1J02"}
 {"k":"PublicSubnetOne","v":"subnet-026e4a50f8ed554c2"}
 {"k":"VPCId","v":"vpc-01c71974a17719964"}
@@ -75,23 +72,20 @@ $ aws cloudformation describe-stacks --stack-name ECSClusterScenario1b | jq -c '
 {"k":"EcsHostSecurityGroup","v":"sg-0e5960540db7d48e0"}
 {"k":"ClusterName","v":"ECSClusterScenario1b-ECSCluster-PElG3UDWUS2s"}
 {"k":"ExternalUrl","v":"http://ECSCl-Publi-1QPWQ5J60DPWV-701553384.us-east-1.elb.amazonaws.com"}
-```
 
-Now lets add the ECS services to existing ECS stack:
-```sh
+
+// Deploying the ECS services to existing stack
 $ aws cloudformation update-stack \
     --template-body file://EC2LaunchType/services/public-service.yml \
     --stack-name ECSClusterScenario1b \
     --parameters ParameterKey=StackName,ParameterValue=ECSClusterScenario1b 
 
-```
-
-
-Cleaning up:
-```sh
+// Removing ECS cluster
 $ aws cloudformation delete-stack --stack-name ECSClusterScenario1b
 ```
 
+**Note:**    
+- [Param `--capabilities`](https://medium.com/@dalumiller/aws-cloudformation-capabilities-parameter-ab73a373278)).
 
 ## Scenario 2: Publicly Exposed Service with Private Networking
 
