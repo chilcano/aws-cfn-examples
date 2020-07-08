@@ -43,15 +43,7 @@ This architecture deploys your container into its own VPC, inside a public facin
 $ export AWS_ACCESS_KEY_ID="xxxxxx"; export AWS_SECRET_ACCESS_KEY="yyyyyyy"
 $ export AWS_DEFAULT_REGION="us-east-1"
 
-// Creating the ECS stack
-$ aws cloudformation create-stack \
-    --template-body file://EC2LaunchType/clusters/public-vpc.yml \
-    --stack-name ecs-scenario1b \
-    --parameters ParameterKey=DesiredCapacity,ParameterValue=2 ParameterKey=MaxSize,ParameterValue=3 ParameterKey=InstanceType,ParameterValue=t2.small 
-
-An error occurred (InsufficientCapabilitiesException) when calling the CreateStack operation: Requires capabilities : [CAPABILITY_IAM]
-
-// Running again passing the 'capabilities' parameter 
+// Creating the ECS stack passing the 'capabilities' parameter 
 $ aws cloudformation create-stack \
     --template-body file://EC2LaunchType/clusters/public-vpc.yml \
     --stack-name ecs-scenario1b \
@@ -65,27 +57,28 @@ $ aws cloudformation create-stack \
 // Querying the output variables
 $ aws cloudformation describe-stacks --stack-name ecs-scenario1b | jq -c '.Stacks[].Outputs[] | {k: .OutputKey, v:.OutputValue}'
 
-{"k":"ECSRole","v":"arn:aws:iam::263455585760:role/ECSClusterScenario1b-ECSRole-1H0MSWYWA1J02"}
-{"k":"PublicSubnetOne","v":"subnet-026e4a50f8ed554c2"}
-{"k":"VPCId","v":"vpc-01c71974a17719964"}
-{"k":"PublicSubnetTwo","v":"subnet-003da663d76ae25a3"}
-{"k":"PublicListener","v":"arn:aws:elasticloadbalancing:us-east-1:263455585760:listener/app/ECSCl-Publi-1QPWQ5J60DPWV/e9aeefbd5f8d81c5/c30a3b729756cd69"}
-{"k":"EcsHostSecurityGroup","v":"sg-0e5960540db7d48e0"}
-{"k":"ClusterName","v":"ECSClusterScenario1b-ECSCluster-PElG3UDWUS2s"}
-{"k":"ExternalUrl","v":"http://ECSCl-Publi-1QPWQ5J60DPWV-701553384.us-east-1.elb.amazonaws.com"}
+{"k":"ECSRole","v":"arn:aws:iam::263455585760:role/ecs-scenario1b-ECSRole-NGDBCS882EJA"}
+{"k":"PublicSubnetOne","v":"subnet-0ce25596551e954ca"}
+{"k":"VPCId","v":"vpc-0ad4ccb98543d525a"}
+{"k":"PublicSubnetTwo","v":"subnet-01d3cd9afa361c92b"}
+{"k":"PublicListener","v":"arn:aws:elasticloadbalancing:us-east-1:263455585760:listener/app/ecs-s-Publi-1GKJLECNCQAVM/0891d9619f437203/3a20e4f92c2e776f"}
+{"k":"EcsHostSecurityGroup","v":"sg-0dd59f63865c60777"}
+{"k":"ClusterName","v":"ecs-scenario1b-ECSCluster-RR9d5D58kHB5"}
+{"k":"ExternalUrl","v":"http://ecs-s-Publi-1GKJLECNCQAVM-5168947.us-east-1.elb.amazonaws.com"}
 
 // Deploying the ECS services to existing stack
 $ aws cloudformation update-stack \
     --template-body file://EC2LaunchType/services/public-service.yml \
     --stack-name ecs-scenario1b \
-    --parameters ParameterKey=StackName,ParameterValue=ECSClusterScenario1b 
+    --parameters ParameterKey=StackName,ParameterValue=ecs-scenario1b 
 
 // Removing ECS cluster
 $ aws cloudformation delete-stack --stack-name ecs-scenario1b
 ```
 
 **Note:**    
-- [Parameter `--capabilities` explanation](https://medium.com/@dalumiller/aws-cloudformation-capabilities-parameter-ab73a373278).
+> If you have this error `An error occurred (InsufficientCapabilitiesException) when calling the CreateStack operation: Requires capabilities : [CAPABILITY_IAM]`, you can fix it using this parameter `--capabilities`.
+> [Explanation here](https://medium.com/@dalumiller/aws-cloudformation-capabilities-parameter-ab73a373278).
 
 ## Scenario 2: Publicly Exposed Service with Private Networking
 
