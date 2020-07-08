@@ -66,6 +66,16 @@ $ aws cloudformation describe-stacks --stack-name ecs-scenario1b | jq -c '.Stack
 {"k":"ClusterName","v":"ecs-scenario1b-ECSCluster-RR9d5D58kHB5"}
 {"k":"ExternalUrl","v":"http://ecs-s-Publi-1GKJLECNCQAVM-5168947.us-east-1.elb.amazonaws.com"}
 
+// Trying to call the service (any) through the AWS ELB
+$ curl -I --http2 http://ecs-s-Publi-1GKJLECNCQAVM-5168947.us-east-1.elb.amazonaws.com
+
+HTTP/1.1 503 Service Temporarily Unavailable
+Server: awselb/2.0
+Date: Wed, 08 Jul 2020 08:52:53 GMT
+Content-Type: text/html
+Content-Length: 178
+Connection: keep-alive
+
 // Deploying the ECS services to existing stack
 $ aws cloudformation update-stack \
     --template-body file://EC2LaunchType/services/public-service.yml \
