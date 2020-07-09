@@ -5,41 +5,6 @@ Description: "[Original: https://s3.amazonaws.com/weaveworks-cfn-public/integrat
   on an ECS cluster.  This template uses a larger example app. (weaveworks/integrations@cf069691b3f92b1c92fe3ac35d5d2845a5ad573f)"
 
 #==================================================#
-#                    Mappings                      #
-#==================================================#
-Mappings:
-  VpcCidrs:
-    vpc:
-      cidr: 172.31.0.0/16
-    pubsubnet1:
-      cidr: 172.31.0.0/24
-    pubsubnet2:
-      cidr: 172.31.1.0/24
-  WeaveworksEcsAmiIds:
-    us-east-1:
-      ImageId: ami-9eb4b1e5
-    us-east-2:
-      ImageId: ami-1c002379
-    us-west-1:
-      ImageId: ami-4a2c192a
-    us-west-2:
-      ImageId: ami-1d668865
-    eu-west-1:
-      ImageId: ami-8fcc32f6
-    eu-west-2:
-      ImageId: ami-cb1101af
-    eu-central-1:
-      ImageId: ami-0460cb6b
-    ap-northeast-1:
-      ImageId: ami-b743bed1
-    ap-southeast-1:
-      ImageId: ami-9d1f7efe
-    ap-southeast-2:
-      ImageId: ami-c1a6bda2
-    ca-central-1:
-      ImageId: ami-b677c9d2
-
-#==================================================#
 #                    Parameters                    #
 #==================================================#
 Parameters:
@@ -105,6 +70,10 @@ Parameters:
     Description: Optional - Authentication token for Weave Cloud [https://cloud.weave.works/].
       Leave empty to run Scope in Standalone Mode.
     Default: ''
+
+#==================================================#
+#                    Conditions                    #
+#==================================================#
 Conditions:
   DoDeployExampleApp:
     Fn::Equals:
@@ -114,6 +83,41 @@ Conditions:
     Fn::Equals:
     - Ref: WeaveCloudServiceToken
     - ''
+
+#==================================================#
+#                    Mappings                      #
+#==================================================#
+Mappings:
+  VpcCidrs:
+    vpc:
+      cidr: 172.31.0.0/16
+    pubsubnet1:
+      cidr: 172.31.0.0/24
+    pubsubnet2:
+      cidr: 172.31.1.0/24
+  WeaveworksEcsAmiIds:
+    us-east-1:
+      ImageId: ami-7b692804  ## ami-9eb4b1e5 (owner: Amazon, date: 2017-03), ami-7b692804 owner: Weaveworks, date: 2018-06-13
+    us-east-2:
+      ImageId: ami-6a0b350f  ## ami-1c002379 (amazon)
+    us-west-1:
+      ImageId: ami-4a2c192a
+    us-west-2:
+      ImageId: ami-1d668865
+    eu-west-1:
+      ImageId: ami-8fcc32f6
+    eu-west-2:
+      ImageId: ami-cb1101af
+    eu-central-1:
+      ImageId: ami-0460cb6b
+    ap-northeast-1:
+      ImageId: ami-b743bed1
+    ap-southeast-1:
+      ImageId: ami-9d1f7efe
+    ap-southeast-2:
+      ImageId: ami-c1a6bda2
+    ca-central-1:
+      ImageId: ami-b677c9d2
 
 #==================================================#
 #                    Resources                     #
@@ -278,8 +282,8 @@ Resources:
       GroupId:
         Ref: EcsSecurityGroup
       IpProtocol: tcp
-      FromPort: '4040'
-      ToPort: '4040'
+      FromPort: '4040'    ## Port required by Weave Scope
+      ToPort: '4040'      ## Port required by Weave Scope
       CidrIp: 0.0.0.0/0
   EcsSecurityGroupIngressWeaveScopeIntPort:
     Type: AWS::EC2::SecurityGroupIngress
@@ -287,8 +291,8 @@ Resources:
       GroupId:
         Ref: EcsSecurityGroup
       IpProtocol: tcp
-      FromPort: '4040'
-      ToPort: '4040'
+      FromPort: '4040'    ## Port required by Weave Scope
+      ToPort: '4040'      ## Port required by Weave Scope
       SourceSecurityGroupId:
         Ref: EcsSecurityGroup
   EcsSecurityGroupIngressWeaveNetIntTcpPort:
@@ -297,8 +301,8 @@ Resources:
       GroupId:
         Ref: EcsSecurityGroup
       IpProtocol: tcp
-      FromPort: '6783'
-      ToPort: '6783'
+      FromPort: '6783'    ## Port required by WeaveNet
+      ToPort: '6783'      ## Port required by WeaveNet
       SourceSecurityGroupId:
         Ref: EcsSecurityGroup
   EcsSecurityGroupIngressWeaveNetIntUdpPorts:
@@ -307,8 +311,8 @@ Resources:
       GroupId:
         Ref: EcsSecurityGroup
       IpProtocol: udp
-      FromPort: '6783'
-      ToPort: '6784'
+      FromPort: '6783'    ## Port required by WeaveNet
+      ToPort: '6784'      ## Port required by WeaveNet
       SourceSecurityGroupId:
         Ref: EcsSecurityGroup
   EcsInstancePolicy:
@@ -483,8 +487,8 @@ Resources:
         - Ref: AWS::NoValue
       - Fn::If:
         - UseWeaveScopeStandalone
-        - InstancePort: '4040'
-          LoadBalancerPort: '4040'
+        - InstancePort: '4040'        ## Port required by Weave Scope
+          LoadBalancerPort: '4040'    ## Port required by Weave Scope to be exposed to LB
           InstanceProtocol: TCP
           Protocol: TCP
         - Ref: AWS::NoValue
@@ -518,5 +522,5 @@ Outputs:
         - Fn::GetAtt:
           - EcsFrontendElasticLoadBalancing
           - DNSName
-        - ":4040"
+        - ":4040"     ## Port where Weave Scope is exposed
     Description: Weave Scope UI
