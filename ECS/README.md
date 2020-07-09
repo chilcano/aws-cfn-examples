@@ -192,7 +192,12 @@ Server: awselb/2.0
 $ aws cloudformation create-stack \
     --template-body file://ECS/EC2LaunchType/services/public-service.yml \
     --stack-name ecs-scenario2b-srv \
-    --parameters ParameterKey=StackName,ParameterValue=ecs-scenario2b 
+    --parameters \ 
+    ParameterKey=StackName,ParameterValue=ecs-scenario2b \
+    ParameterKey=ServiceName,ParameterValue=nginx-srv \
+    ParameterKey=ImageUrl,ParameterValue=nginx \
+    ParameterKey=ContainerPort,ParameterValue=80 \
+    ParameterKey=Role,ParameterValue=""  
 
 // Trying to call the service again through the AWS ELB
 $ curl -I http://ecs-s-Publi-xxxxxx.us-east-1.elb.amazonaws.com

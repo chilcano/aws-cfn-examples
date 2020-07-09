@@ -68,11 +68,11 @@ Mappings:
 #                        Resources                            #
 #=============================================================#
 Resources:
-  VPC:
   # VPC in which containers will be networked.
   # It has two public subnets, and two private subnets.
   # We distribute the subnets across the first two available subnets
   # for the region, for high availability.
+  VPC:
     Type: AWS::EC2::VPC
     Properties:
       EnableDnsSupport: true
@@ -521,10 +521,10 @@ Resources:
 #=============================================================#
 #                        Outputs                              #
 #=============================================================#
-Outputs:
 # These are the values output by the CloudFormation template. Be careful
 # about changing any of them, because of them are exported with specific
 # names so that the other task related CF templates can use them.
+Outputs:
   ClusterName:
     Description: The name of the ECS cluster
     Value: !Ref 'ECSCluster'
