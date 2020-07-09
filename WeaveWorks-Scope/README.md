@@ -1,6 +1,7 @@
 # Deploy WeaveWorks Scope on AWS ECS in standalone mode
 
 ## Reference:
+- https://github.com/weaveworks/scope/blob/master/site/ami.md
 - https://github.com/weaveworks/scope/blob/master/site/installing.md#ecs
 
 ```sh
