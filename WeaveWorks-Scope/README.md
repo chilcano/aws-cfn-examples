@@ -4,6 +4,8 @@
 - https://github.com/weaveworks/scope/blob/master/site/ami.md
 - https://github.com/weaveworks/scope/blob/master/site/installing.md#ecs
 
+
+### 1. Create an ECS Cluster using WeaveWorks AMI (ECS customized) with ECS Agent, Weave Scope and Weave Net preinstalled.
 ```sh
 $ aws cloudformation create-stack \
      --template-body file://WeaveWorks-Scope/ecs-identiorca.yaml \
@@ -14,27 +16,13 @@ $ aws cloudformation create-stack \
      ParameterKey=DeployExampleApp,ParameterValue=No \
      ParameterKey=WeaveCloudServiceToken,ParameterValue="" \
      --capabilities CAPABILITY_IAM 
-
-$ aws cloudformation update-stack \
-     --template-body file://WeaveWorks-Scope/ecs-identiorca.yaml \
-     --stack-name ecs-weave-scope \
-     --parameters ParameterKey=EcsInstanceType,ParameterValue=t2.micro \
-     ParameterKey=Scale,ParameterValue=2 \
-     ParameterKey=KeyName,ParameterValue=chilcan0_rpi \
-     ParameterKey=DeployExampleApp,ParameterValue=Yes \
-     ParameterKey=WeaveCloudServiceToken,ParameterValue="" \
-     --capabilities CAPABILITY_IAM 
-
-$ aws cloudformation create-stack \
-     --template-body file://WeaveWorks-Scope/ecs-identiorca.yaml \
-     --stack-name ecs-weave-scope \
-     --parameters ParameterKey=EcsInstanceType,ParameterValue=t2.micro \
-     ParameterKey=Scale,ParameterValue=2 \
-     ParameterKey=KeyName,ParameterValue=chilcan0_rpi \
-     ParameterKey=DeployExampleApp,ParameterValue=Yes \
-     ParameterKey=WeaveCloudServiceToken,ParameterValue="" \
-     --capabilities CAPABILITY_IAM 
 ```
+
+### 2. Deploy a sample container-based app.
+```sh
+
+```
+
 
 ## SSH access to EC2 instances
 
