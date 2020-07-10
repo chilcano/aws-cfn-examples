@@ -24,6 +24,16 @@ $ aws cloudformation update-stack \
      ParameterKey=DeployExampleApp,ParameterValue=Yes \
      ParameterKey=WeaveCloudServiceToken,ParameterValue="" \
      --capabilities CAPABILITY_IAM 
+
+$ aws cloudformation create-stack \
+     --template-body file://WeaveWorks-Scope/ecs-identiorca.yaml \
+     --stack-name ecs-weave-scope \
+     --parameters ParameterKey=EcsInstanceType,ParameterValue=t2.micro \
+     ParameterKey=Scale,ParameterValue=2 \
+     ParameterKey=KeyName,ParameterValue=chilcan0_rpi \
+     ParameterKey=DeployExampleApp,ParameterValue=Yes \
+     ParameterKey=WeaveCloudServiceToken,ParameterValue="" \
+     --capabilities CAPABILITY_IAM 
 ```
 
 ## SSH access to EC2 instances
