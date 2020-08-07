@@ -3,7 +3,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: "[Original: https://s3.amazonaws.com/weaveworks-cfn-public/integrations/ecs-identiorca.json]
   Weave-enabled AWS CloudFormation template to create resources required to run tasks
   on an ECS cluster.  This template uses a larger example app. (weaveworks/integrations@cf069691b3f92b1c92fe3ac35d5d2845a5ad573f)"
-
+ 
 #==================================================#
 #                    Parameters                    #
 #==================================================#
